@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 
 /**
  * Created by artemaliev on 07/09/15.
+ * Changed by pashovpavel on 21/09/20.
  */
 public class IntSortTest
 {
@@ -35,7 +36,7 @@ public class IntSortTest
   public void testSortArray() throws Exception {
     int array[] = generateRandomIntArray(ARRAY_SIZE, SEED);
 
-    IntSort.sort(array);
+    IntSort.quickSort(array, 0, ARRAY_SIZE-1);
 
     // проверяем правильность сортировки
     int previousValue = Integer.MIN_VALUE;
