@@ -33,11 +33,15 @@ public class IntSort {
     return counter;
   }
 
-  public static void quickSort(int[] array, int begin, int end) {
+  static void quickSort(int[] array, int begin, int end) {
     if (end <= begin) return;
     int pivot = partition(array, begin, end);
     quickSort(array, begin, pivot-1);
     quickSort(array, pivot+1, end);
+  }
+
+  public static void quickSort(int[] array){
+    quickSort(array, 0, array.length - 1);
   }
 
   public static void sort (List<Integer> list) {

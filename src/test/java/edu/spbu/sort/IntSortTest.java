@@ -34,10 +34,10 @@ public class IntSortTest
 
   @Test
   public void testSortArray() throws Exception {
-    int array[] = generateRandomIntArray(ARRAY_SIZE, SEED);
+    int array[] = {3, 1,2,3};
 
-    IntSort.quickSort(array, 0, ARRAY_SIZE-1);
-
+    IntSort.quickSort(array);
+    System.out.println("" + array[0] + array[1]);
     // проверяем правильность сортировки
     int previousValue = Integer.MIN_VALUE;
     for (int i = 0; i < array.length ; i++) {
