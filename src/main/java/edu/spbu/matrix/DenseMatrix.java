@@ -45,11 +45,12 @@ public class DenseMatrix implements Matrix
       temp.add(matrixRow);
 
       while ((line = br.readLine()) != null) {
+
         splitLine = line.split("\\s+");
         for ( int i = 0; i < splitLine.length; i++) matrixRow[i] = Double.parseDouble(splitLine[i]);
 
         if (matrixRow.length != this.width) {
-          throw new RuntimeException("Unable to load matrix from " + fileName + ": rows have different length!");
+          throw new RuntimeException("Невозможно загрузить матрицу из файла " + fileName + ": строки имеют разную длину!");
         }
 
         temp.add(matrixRow);
@@ -66,6 +67,18 @@ public class DenseMatrix implements Matrix
     }
   }
 
+  @Override public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    for(int i = 0; i < this.height; ++i) {
+
+      for(int j = 0; j < this.width; ++j) {
+        sb.append(array[i][j]).append(" ");
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
 
   /**
    * однопоточное умнджение матриц
@@ -74,9 +87,36 @@ public class DenseMatrix implements Matrix
    * @param o
    * @return
    */
-  @Override public Matrix mul(Matrix o)
+
+  @Override public Matrix mul(Matrix o) throws RuntimeException
   {
+    if (this.width != o.getHeight()) {
+      throw new RuntimeException("Операция невозможна : матрицы не имеют подходящих размеров!");
+    }
+
+      if (o instanceof DenseMatrix) {
+        return mul((DenseMatrix) o);
+      } else if (o instanceof SparseMatrix) {
+        return mul((SparseMatrix) o);
+      }
+
     return null;
+  }
+
+  private DenseMatrix mul( DenseMatrix o) {
+    int newHeight = this.height, newWidth = o.getWidth();
+    o = o.transpose();
+
+    double[][] out = new double[newHeight][newWidth];
+    for (int i = 0; i < newHeight; ++i) {
+      for (int j = 0; j < newWidth; ++j) {
+        for (int k = 0; k < this.width; ++k) {
+          out[i][j] += this.array[i][k] * o.array[j][k];
+        }
+      }
+    }
+
+    return new DenseMatrix(newHeight, newWidth, out);
   }
 
   /**
@@ -95,8 +135,56 @@ public class DenseMatrix implements Matrix
    * @param o
    * @return
    */
+
   @Override public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (o instanceof DenseMatrix) {
+      DenseMatrix dm = (DenseMatrix) o;
+
+      if (this.hashCode != dm.hashCode) {
+        return false;
+      }
+
+      for (int i = 0; i < this.getHeight(); ++i) {
+        for (int j = 0; j < this.getWidth(); ++j) {
+          if (this.array[i][j] != dm.array[i][j]) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    if (o instanceof SparseMatrix) {
+      return false;
+    }
+
     return false;
   }
 
+  @Override public double get(int i, int j) {
+    return this.array[i][j];
+  }
+
+  @Override public int getHeight() {
+    return this.height;
+  }
+
+  @Override public int getWidth() {
+    return this.width;
+  }
+
+  public DenseMatrix transpose() {
+    double[][] out = new double[this.width][this.height];
+    for (int i = 0; i < this.height; ++i) {
+      for (int j = 0; j < this.width; ++j) {
+        out[j][i] = this.array[i][j];
+      }
+    }
+    return new DenseMatrix(this.width, this.height, out);
+  }
 }
+

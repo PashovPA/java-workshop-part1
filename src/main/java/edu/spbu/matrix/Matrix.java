@@ -20,4 +20,29 @@ public interface Matrix
    */
   Matrix dmul(Matrix o);
 
+  /**
+   * Взятие ij элемента матрицы
+   * @param i - номер строки элемента
+   * @param j - номер столбца элемента
+   * @return ij элемент
+   */
+  double get(int i, int j);
+
+  /**
+   * Взятие высоты матрицы
+   * @return height
+   */
+  int getHeight();
+
+  /**
+   * Взятие ширины матрицы
+   * @return width
+   */
+  int getWidth();
+
+  /**
+   * Печать матрицы
+   * @return width
+   */
+  String toString();
 }

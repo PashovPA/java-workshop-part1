@@ -1,10 +1,32 @@
 package edu.spbu.matrix;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Iterator;
+
 /**
  * Разряженная матрица
  */
 public class SparseMatrix implements Matrix
 {
+  private int height, width;
+  int[] rows, cols;
+  double[] values;
+  private int hashCode;
+
+  SparseMatrix(int height, int width, int[] rows, int[] cols, double[] values) {
+    this.height = height;
+    this.width = width;
+    this.rows = rows;
+    this.cols = cols;
+    this.values = values;
+
+    this.hashCode = Arrays.hashCode(this.rows) + Arrays.hashCode(this.cols) + Arrays.hashCode(this.values);
+  }
+
   /**
    * загружает матрицу из файла
    * @param fileName
@@ -42,5 +64,18 @@ public class SparseMatrix implements Matrix
    */
   @Override public boolean equals(Object o) {
     return false;
+  }
+
+  @Override
+  public double get(int i, int j) {
+    return 0;
+  }
+
+  @Override public int getHeight() {
+    return this.height;
+  }
+
+  @Override public int getWidth() {
+    return this.width;
   }
 }
