@@ -1,17 +1,12 @@
 package edu.spbu.matrix;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Iterator;
+import java.util.*;
+import java.io.*;
 
 /**
  * Разряженная матрица
  */
-public class SparseMatrix implements Matrix
-{
+public class SparseMatrix implements Matrix {
   private int height, width;
   int[] rows, cols;
   double[] values;
@@ -29,11 +24,13 @@ public class SparseMatrix implements Matrix
 
   /**
    * загружает матрицу из файла
+   *
    * @param fileName
    */
   public SparseMatrix(String fileName) {
 
   }
+
   /**
    * однопоточное умнджение матриц
    * должно поддерживаться для всех 4-х вариантов
@@ -41,8 +38,8 @@ public class SparseMatrix implements Matrix
    * @param o
    * @return
    */
-  @Override public Matrix mul(Matrix o)
-  {
+  @Override
+  public Matrix mul(Matrix o) {
     return null;
   }
 
@@ -52,17 +49,19 @@ public class SparseMatrix implements Matrix
    * @param o
    * @return
    */
-  @Override public Matrix dmul(Matrix o)
-  {
+  @Override
+  public Matrix dmul(Matrix o) {
     return null;
   }
 
   /**
    * спавнивает с обоими вариантами
+   *
    * @param o
    * @return
    */
-  @Override public boolean equals(Object o) {
+  @Override
+  public boolean equals(Object o) {
     return false;
   }
 
@@ -71,11 +70,14 @@ public class SparseMatrix implements Matrix
     return 0;
   }
 
-  @Override public int getHeight() {
+  @Override
+  public int getHeight() {
     return this.height;
   }
 
-  @Override public int getWidth() {
+  @Override
+  public int getWidth() {
     return this.width;
   }
 }
+
