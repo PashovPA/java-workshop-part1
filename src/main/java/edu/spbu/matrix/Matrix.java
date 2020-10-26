@@ -1,48 +1,10 @@
 package edu.spbu.matrix;
 
-/**
- *
- */
-public interface Matrix
-{
-  /**
-   * однопоточное умнджение матриц
-   * должно поддерживаться для всех 4-х вариантов
-   * @param o
-   * @return
-   */
-  Matrix mul(Matrix o);
-
-  /**
-   * многопоточное умножение матриц
-   * @param o
-   * @return
-   */
-  Matrix dmul(Matrix o);
-
-  /**
-   * Взятие ij элемента матрицы
-   * @param i - номер строки элемента
-   * @param j - номер столбца элемента
-   * @return ij элемент
-   */
-  double get(int i, int j);
-
-  /**
-   * Взятие высоты матрицы
-   * @return height
-   */
-  int getHeight();
-
-  /**
-   * Взятие ширины матрицы
-   * @return width
-   */
-  int getWidth();
-
-  /**
-   * Печать матрицы
-   * @return width
-   */
+public interface Matrix {
   String toString();
+  int getHeight();
+  int getWidth();
+  Matrix mul(Matrix o);
+  Matrix dmul(Matrix o);
+  boolean equals(Object o);
 }

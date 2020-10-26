@@ -1,90 +1,121 @@
 package edu.spbu.matrix;
 
-import java.util.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 
-public class DenseMatrix implements Matrix
-{
-  private int height, width;
+public class DenseMatrix implements Matrix {
+
+  int height, width;
   double[][] matrix;
 
   public DenseMatrix(double[][] matrix) {
-      this.height = matrix.length;
-      this.width = matrix[0].length;
-      this.matrix = matrix;
+    this.height = matrix.length;
+    this.width = matrix[0].length;
+    this.matrix = matrix;
   }
 
   public DenseMatrix(String fileName) throws RuntimeException {
     try {
-      String[] stringRow;
-      double[] doubleRow;
-      ArrayList<double[]> temp = new ArrayList<>();
-      Scanner data = new Scanner(new File(fileName));
+      ArrayList<double[]> rows = new ArrayList<>();
+      Scanner fileData = new Scanner(new File(fileName));
 
-      while (data.hasNextLine()) {
-        stringRow = data.nextLine().split("\\s+");
-        doubleRow = new double[stringRow.length];
-        for (int i = 0; i < doubleRow.length; i++) {
+      if (fileData.hasNextLine()) {
+        String[] stringRow = fileData.nextLine().split("\\s+");
+        double[] doubleRow = new double[stringRow.length];
+        for (int i = 0; i < stringRow.length; i++) {
           doubleRow[i] = Double.parseDouble(stringRow[i]);
         }
-        temp.add(doubleRow);
+        rows.add(doubleRow);
+        int fileWidth = doubleRow.length;
+
+        while (fileData.hasNextLine()) {
+          stringRow = fileData.nextLine().split("\\s+");
+
+          if (stringRow.length != fileWidth) {
+            throw new RuntimeException("Невозможно загрузить матрицу: строки имеют разную длину");
+          }
+
+          doubleRow = new double[stringRow.length];
+          for (int i = 0; i < stringRow.length; i++) {
+            doubleRow[i] = Double.parseDouble(stringRow[i]);
+          }
+          rows.add(doubleRow);
+        }
+
+        int fileHeight = rows.size();
+        double[][] fileMatrix = new double[fileHeight][fileWidth];
+        for (int i = 0; i < fileHeight; i++) {
+          fileMatrix[i] = rows.get(i);
+        }
+
+        this.height = fileHeight;
+        this.width = fileWidth;
+        this.matrix = fileMatrix;
+      } else {
+        System.err.println("Невозможно загрузить матрицу: файл пуст");
       }
-
-      double[][] matrix = temp.toArray(new double[temp.size()][]);
-
-      this.matrix = matrix;
-      this.height = matrix.length;
-      this.width = matrix[0].length;
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (FileNotFoundException e) {
+      System.err.println("Невозможно загрузить матрицу: файл не найден");
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     StringBuilder sb = new StringBuilder();
-    for(int i = 0; i < this.height; ++i) {
-      for(int j = 0; j < this.width; ++j) {
-        sb.append(matrix[i][j]).append(" ");
+    for (int i = 0; i < this.height; i++) {
+      for (int j = 0; j < this.width; j++) {
+        sb.append(this.matrix[i][j]).append(' ');
       }
-      sb.append("\n");
+      sb.append('\n');
     }
-
     return sb.toString();
   }
 
-  @Override public Matrix mul(Matrix o) throws RuntimeException
-  {
-    if (this.width != o.getHeight()) {
-      throw new RuntimeException("Операция невозможна : матрицы не имеют подходящих размеров!");
-    }
-    if (o instanceof DenseMatrix) {
-      return mul((DenseMatrix) o);
-    } else if (o instanceof SparseMatrix) {
-      return mul((SparseMatrix) o);
-    }
+  @Override
+  public int getHeight() {
+    return this.height;
+  }
 
+  @Override
+  public int getWidth() {
+    return this.width;
+  }
+
+  @Override
+  public Matrix mul(Matrix o) {
+    if (this.width != o.getHeight()) {
+      System.out.println("Операция невозможна: у матриц нет подходящих размеров");
+    } else if (o instanceof DenseMatrix) {
+      return this.mul((DenseMatrix) o);
+    } else if (o instanceof SparseMatrix) {
+      return this.mul((SparseMatrix) o);
+    }
     return null;
   }
 
-  private DenseMatrix mul( DenseMatrix o) {
+  private Matrix mul(DenseMatrix o) {
     int newHeight = this.height, newWidth = o.getWidth();
-    o = o.transpose();
+    double[][] newMatrix = new double[newHeight][newWidth];
 
-    double[][] out = new double[newHeight][newWidth];
-    for (int i = 0; i < newHeight; ++i) {
-      for (int j = 0; j < newWidth; ++j) {
-        for (int k = 0; k < this.width; ++k) {
-          out[i][j] += this.matrix[i][k] * o.matrix[j][k];
+    for (int i = 0; i < newHeight; i++) {
+      for (int j = 0; j < newWidth; j++) {
+        for (int k = 0; k < this.width; k++) {
+          newMatrix[i][j] += this.matrix[i][k] * o.matrix[k][j];
         }
       }
     }
-
-    return new DenseMatrix(out);
+    return new DenseMatrix(newMatrix);
   }
 
-  @Override public Matrix dmul(Matrix o)
-  {
+  private Matrix mul(SparseMatrix o) {
+    return null;
+  }
+
+  @Override
+  public Matrix dmul(Matrix o) {
     return null;
   }
 
@@ -92,49 +123,32 @@ public class DenseMatrix implements Matrix
     if (o == this) {
       return true;
     }
-
     if (o instanceof DenseMatrix) {
       DenseMatrix dm = (DenseMatrix) o;
 
-      if ((this.width == dm.getWidth()) && (this.height == dm.getHeight())) {
-        for (int i = 0; i < this.height; ++i) {
-          for (int j = 0; j < this.width; ++j) {
-            if (this.matrix[i][j] != dm.matrix[i][j]) {
-              return false;
-            }
+      if (this.height != dm.height || this.width != dm.width) {
+        return false;
+      }
+
+      for (int i = 0; i < dm.height; i++) {
+        for (int j = 0; j < dm.width; j++) {
+          if (this.matrix[i][j] != dm.matrix[i][j]) {
+            return false;
           }
         }
-        return true;
       }
+      return true;
     }
-
     if (o instanceof SparseMatrix) {
+      SparseMatrix sm = (SparseMatrix) o;
+
+      if (this.height != sm.height || this.width != sm.width) {
+        return false;
+      }
+
       return false;
     }
-
     return false;
-  }
-
-  @Override public double get(int i, int j) {
-    return this.matrix[i][j];
-  }
-
-  @Override public int getHeight() {
-    return this.height;
-  }
-
-  @Override public int getWidth() {
-    return this.width;
-  }
-
-  public DenseMatrix transpose() {
-    double[][] out = new double[this.width][this.height];
-    for (int i = 0; i < this.height; ++i) {
-      for (int j = 0; j < this.width; ++j) {
-        out[j][i] = this.matrix[i][j];
-      }
-    }
-    return new DenseMatrix(out);
   }
 }
 
