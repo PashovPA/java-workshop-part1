@@ -85,6 +85,17 @@ public class DenseMatrix implements Matrix {
   }
 
   @Override
+  public Matrix transpose(){
+    double[][] newMatrix = new double[this.width][this.height];
+    for (int i = 0; i < this.height; i++) {
+      for (int j = 0; j < this.width; j++) {
+        newMatrix[j][i] = this.matrix[i][j];
+      }
+    }
+    return new DenseMatrix(newMatrix);
+  }
+
+  @Override
   public Matrix mul(Matrix o) {
     if (this.width != o.getHeight()) {
       System.out.println("Операция невозможна: у матриц нет подходящих размеров");
@@ -111,7 +122,7 @@ public class DenseMatrix implements Matrix {
   }
 
   private Matrix mul(SparseMatrix o) {
-    return null;
+    return o.transpose().mul(this.transpose()).transpose();
   }
 
   @Override
@@ -139,14 +150,21 @@ public class DenseMatrix implements Matrix {
       }
       return true;
     }
+
     if (o instanceof SparseMatrix) {
       SparseMatrix sm = (SparseMatrix) o;
 
       if (this.height != sm.height || this.width != sm.width) {
         return false;
       }
-
-      return false;
+      for (int i = 0; i < sm.height; i++) {
+        for (int j = 0; j < sm.width; j++) {
+          if (this.matrix[i][j] != sm.matrix[i][j]) {
+            return false;
+          }
+        }
+      }
+      return true;
     }
     return false;
   }

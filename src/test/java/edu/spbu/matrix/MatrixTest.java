@@ -21,21 +21,64 @@ public class MatrixTest
   }
 
   @Test
-  public void testString() {
+  public void mulDS() {
     Matrix m1 = new DenseMatrix("m1.txt");
-    System.out.println(m1.toString());
+    Matrix m2 = new SparseMatrix("m2.txt");
+    Matrix expected = new DenseMatrix("result.txt");
+    assertEquals(expected, m1.mul(m2));
   }
 
   @Test
-  public void testEqualsTrue() {
+  public void mulSD() {
+    Matrix m1 = new SparseMatrix("m1.txt");
+    Matrix m2 = new DenseMatrix("m2.txt");
+    Matrix expected = new DenseMatrix("result.txt");
+    assertEquals(expected, m1.mul(m2));
+  }
+
+  @Test
+  public void mulSS() {
+    Matrix m1 = new SparseMatrix("m1.txt");
+    Matrix m2 = new SparseMatrix("m2.txt");
+    Matrix expected = new SparseMatrix("result.txt");
+    assertEquals(expected, m1.mul(m2));
+  }
+
+  @Test
+  public void testString() {
+    Matrix m1 = new DenseMatrix("m1.txt");
+    System.out.println(m1.toString());
+    Matrix m2 = new SparseMatrix("m1.txt");
+    System.out.println(m2.toString());
+  }
+
+  @Test
+  public void testEqualsDD() {
     Matrix m1 = new DenseMatrix("m1.txt");
     Matrix m2 = new DenseMatrix("m1.txt");
+    Matrix m3 = new DenseMatrix("m1.txt");
+    Matrix m4 = new DenseMatrix("m2.txt");
     assertTrue(m1.equals(m2));
+    assertFalse(m3.equals(m4));
   }
+
   @Test
-  public void testEqualsFalse() {
-    Matrix m1 = new DenseMatrix("m1.txt");
-    Matrix m2 = new DenseMatrix("m2.txt");
-    assertFalse(m1.equals(m2));
+  public void testEqualsSS() {
+    Matrix m1 = new SparseMatrix("m1.txt");
+    Matrix m2 = new SparseMatrix("m1.txt");
+    Matrix m3 = new SparseMatrix("m1.txt");
+    Matrix m4 = new SparseMatrix("m2.txt");
+    assertTrue(m1.equals(m2));
+    assertFalse(m3.equals(m4));
+  }
+
+  @Test
+  public void testEqualsSD() {
+    Matrix m1 = new SparseMatrix("m1.txt");
+    Matrix m2 = new DenseMatrix("m1.txt");
+    Matrix m3 = new SparseMatrix("m1.txt");
+    Matrix m4 = new DenseMatrix("m2.txt");
+    assertTrue(m1.equals(m2));
+    assertFalse(m3.equals(m4));
   }
 }
