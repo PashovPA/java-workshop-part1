@@ -221,7 +221,7 @@ public class SparseMatrix implements Matrix {
         }
       }
     }
-    return new DenseMatrix(newMatrix);
+    return new SparseMatrix(newMatrix);
   }
 
   private Matrix mul(SparseMatrix o) {
@@ -284,6 +284,21 @@ public class SparseMatrix implements Matrix {
 
   @Override
   public Matrix dmul(Matrix o) {
+    if (this.width != o.getHeight()) {
+      System.out.println("Операция невозможна: у матриц нет подходящих размеров");
+    } else if (o instanceof DenseMatrix) {
+      return this.dmul((DenseMatrix) o);
+    } else if (o instanceof SparseMatrix) {
+      return this.dmul((SparseMatrix) o);
+    }
+    return null;
+  }
+
+  private Matrix dmul(DenseMatrix o){
+    return null;
+  }
+
+  private Matrix dmul(SparseMatrix o){
     return null;
   }
 

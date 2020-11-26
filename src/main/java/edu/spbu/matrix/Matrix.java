@@ -48,7 +48,7 @@ public interface Matrix {
   Matrix dmul(Matrix o);
 
   /**
-   * Check if matrixs are equals
+   * Check if matrix are equals
    * @return boolean value
    */
   boolean equals(Object o);

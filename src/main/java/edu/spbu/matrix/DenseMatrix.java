@@ -127,7 +127,61 @@ public class DenseMatrix implements Matrix {
 
   @Override
   public Matrix dmul(Matrix o) {
+    if (this.width != o.getHeight()) {
+      System.out.println("Операция невозможна: у матриц нет подходящих размеров");
+    } else if (o instanceof DenseMatrix) {
+      return this.dmul((DenseMatrix) o);
+    } else if (o instanceof SparseMatrix) {
+      return this.dmul((SparseMatrix) o);
+    }
     return null;
+  }
+
+  private Matrix dmul(DenseMatrix o) {
+    final DenseMatrix matrixF = new DenseMatrix(this.matrix);
+    final DenseMatrix matrixS = new DenseMatrix(o.matrix);
+    int newHeight = this.height, newWidth = o.getWidth();
+    final double[][] newMatrix = new double[newHeight][newWidth];
+
+    class DenseMulThreaded implements Runnable {
+      final int subHeightF, subHeightS, subWidthF, subWidthS;
+
+      public DenseMulThreaded(int subHeightF, int subHeightS, int subWidthF, int subWidthS){
+        this.subHeightF = subHeightF;
+        this.subHeightS = subHeightS;
+        this.subWidthF = subWidthF;
+        this.subWidthS = subWidthS;
+      }
+
+      @Override
+      public void run(){
+        for (int i = subHeightF; i < subHeightS; i++) {
+          for (int j = subWidthF; j < subWidthS; j++) {
+            for (int k = 0; k < matrixF.width; k++) {
+              newMatrix[i][j] += matrixF.matrix[i][k] * matrixS.matrix[k][j];
+            }
+          }
+        }
+      }
+    }
+    int subHeight = newHeight / 2, subWidth = newWidth / 2;
+    try {
+      Thread threadFirst = new Thread(new DenseMulThreaded(0, subHeight, 0, subWidth));
+      Thread threadSecond = new Thread(new DenseMulThreaded(0, subHeight, subWidth, newWidth));
+      Thread threadThird = new Thread(new DenseMulThreaded(subHeight, newHeight, 0, subWidth));
+      Thread threadFourth = new Thread(new DenseMulThreaded(subHeight, newHeight, subWidth, newWidth));
+
+      threadFirst.start(); threadSecond.start(); threadThird.start(); threadFourth.start();
+      threadFirst.join(); threadSecond.join(); threadThird.join(); threadFourth.join();
+
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+    return new DenseMatrix(newMatrix);
+  }
+
+  private Matrix dmul(SparseMatrix o){
+    return o.transpose().dmul(this.transpose()).transpose();
   }
 
   @Override public boolean equals(Object o) {
