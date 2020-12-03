@@ -143,10 +143,10 @@ public class DenseMatrix implements Matrix {
     int newHeight = this.height, newWidth = o.getWidth();
     final double[][] newMatrix = new double[newHeight][newWidth];
 
-    class DenseMulThreaded implements Runnable {
+    class DDMulThreaded implements Runnable {
       final int subHeightF, subHeightS, subWidthF, subWidthS;
 
-      public DenseMulThreaded(int subHeightF, int subHeightS, int subWidthF, int subWidthS){
+      public DDMulThreaded(int subHeightF, int subHeightS, int subWidthF, int subWidthS){
         this.subHeightF = subHeightF;
         this.subHeightS = subHeightS;
         this.subWidthF = subWidthF;
@@ -166,10 +166,10 @@ public class DenseMatrix implements Matrix {
     }
     int subHeight = newHeight / 2, subWidth = newWidth / 2;
     try {
-      Thread threadFirst = new Thread(new DenseMulThreaded(0, subHeight, 0, subWidth));
-      Thread threadSecond = new Thread(new DenseMulThreaded(0, subHeight, subWidth, newWidth));
-      Thread threadThird = new Thread(new DenseMulThreaded(subHeight, newHeight, 0, subWidth));
-      Thread threadFourth = new Thread(new DenseMulThreaded(subHeight, newHeight, subWidth, newWidth));
+      Thread threadFirst = new Thread(new DDMulThreaded(0, subHeight, 0, subWidth));
+      Thread threadSecond = new Thread(new DDMulThreaded(0, subHeight, subWidth, newWidth));
+      Thread threadThird = new Thread(new DDMulThreaded(subHeight, newHeight, 0, subWidth));
+      Thread threadFourth = new Thread(new DDMulThreaded(subHeight, newHeight, subWidth, newWidth));
 
       threadFirst.start(); threadSecond.start(); threadThird.start(); threadFourth.start();
       threadFirst.join(); threadSecond.join(); threadThird.join(); threadFourth.join();

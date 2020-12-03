@@ -227,59 +227,31 @@ public class SparseMatrix implements Matrix {
   private Matrix mul(SparseMatrix o) {
     int newHeight = this.height, newWidth = o.getWidth();
     SparseMatrix sm = (SparseMatrix)o.transpose();
+    double[][] newMatrix = new double[newHeight][newWidth];
+    for (int i = 0; i < this.height; i++) {
+      Arrays.fill(newMatrix[i], 0);
+    }
 
-    ArrayList<Double> elements = new ArrayList<>();
-    ArrayList<Integer> numElInRow = new ArrayList<>();
-    ArrayList<Integer> columnIndex = new ArrayList<>();
-    numElInRow.add(0);
-
-    int count = 0, point1, point2;
-    double element;
-    for (int i = 0; i < this.numElInRow.length-1; i++) {
+    for (int i = 0; i < this.numElInRow.length - 1; i++) {
       int startPointF = this.numElInRow[i], endPointF = this.numElInRow[i + 1];
-      for(int j = 0 ; j < sm.numElInRow.length-1 ; j++) {
+      for (int j = 0; j < sm.numElInRow.length - 1; j++) {
         int startPointS = sm.numElInRow[j], endPointS = sm.numElInRow[j + 1];
-        element = 0;
-        point1 = startPointF;
-        point2 = startPointS;
-        while ((point1 < endPointF) && (point2 < endPointS)) {
-          if(this.columnIndex[point1] == sm.columnIndex[point2]) {
-            element += this.elements[point1] * sm.elements[point2];
-            point1++;
-            point2++;
+        int currentPointF = startPointF, currentPointS = startPointS;
+
+        while ((currentPointF < endPointF) && (currentPointS < endPointS)) {
+          if (this.columnIndex[currentPointF] == sm.columnIndex[currentPointS]) {
+            newMatrix[i][j] += this.elements[currentPointF] * sm.elements[currentPointS];
+            currentPointF++;
+            currentPointS++;
+          } else if (this.columnIndex[currentPointF] < sm.columnIndex[currentPointS]) {
+            currentPointF++;
+          } else {
+            currentPointS++;
           }
-          else if (this.columnIndex[point1] < sm.columnIndex[point2]) {
-            point1++;
-          }
-          else {
-            point2++;
-          }
-        }
-        if(element != 0) {
-          count++;
-          elements.add(element);
-          columnIndex.add(j);
         }
       }
-      numElInRow.add(count);
     }
-
-    double[] newMatrix = new double[elements.size()];
-    for (int i = 0; i < elements.size(); i++) {
-      newMatrix[i] = elements.get(i);
-    }
-
-    int[] newNumElInRow = new int[numElInRow.size()];
-    for (int i = 0; i < numElInRow.size(); i++) {
-      newNumElInRow[i] = numElInRow.get(i);
-    }
-
-    int[] newColumnIndex = new int[columnIndex.size()];
-    for (int i = 0; i < columnIndex.size(); i++) {
-      newColumnIndex[i] = columnIndex.get(i);
-    }
-
-    return new SparseMatrix(newHeight, newWidth, newMatrix, newNumElInRow, newColumnIndex);
+    return new SparseMatrix(newMatrix);
   }
 
   @Override
@@ -303,12 +275,12 @@ public class SparseMatrix implements Matrix {
       Arrays.fill(newMatrix[i], 0);
     }
 
-    class DenseMulThreaded implements Runnable {
+    class SDMulThreaded implements Runnable {
       final int subWidthF, subWidthS;
 
-      public DenseMulThreaded(int subHeightF, int subHeightS) {
-        this.subWidthF = subHeightF;
-        this.subWidthS = subHeightS;
+      public SDMulThreaded(int subWidthF, int subWidthS) {
+        this.subWidthF = subWidthF;
+        this.subWidthS = subWidthS;
       }
 
       @Override
@@ -324,10 +296,10 @@ public class SparseMatrix implements Matrix {
       }
     }
     try {
-      Thread threadFirst = new Thread(new DenseMulThreaded(0, newWidth/4));
-      Thread threadSecond = new Thread(new DenseMulThreaded(newWidth/4, newWidth/2));
-      Thread threadThird = new Thread(new DenseMulThreaded(newWidth/2, newWidth*3/4));
-      Thread threadFourth = new Thread(new DenseMulThreaded(newWidth*3/4, newWidth));
+      Thread threadFirst = new Thread(new SDMulThreaded(0, newWidth/4));
+      Thread threadSecond = new Thread(new SDMulThreaded(newWidth/4, newWidth/2));
+      Thread threadThird = new Thread(new SDMulThreaded(newWidth/2, newWidth*3/4));
+      Thread threadFourth = new Thread(new SDMulThreaded(newWidth*3/4, newWidth));
 
       threadFirst.start(); threadSecond.start(); threadThird.start(); threadFourth.start();
       threadFirst.join(); threadSecond.join(); threadThird.join(); threadFourth.join();
@@ -340,32 +312,62 @@ public class SparseMatrix implements Matrix {
   }
 
   private Matrix dmul(SparseMatrix o) {
+    final SparseMatrix matrixF = new SparseMatrix(this.matrix);
+    final SparseMatrix matrixS = (SparseMatrix)o.transpose();
     int newHeight = this.height, newWidth = o.getWidth();
-    SparseMatrix sm = (SparseMatrix)o.transpose();
-    double[][] newMatrix = new double[newHeight][newWidth];
+    final double[][] newMatrix = new double[newHeight][newWidth];
     for (int i = 0; i < this.height; i++) {
       Arrays.fill(newMatrix[i], 0);
     }
 
-    for (int i = 0; i < this.numElInRow.length - 1; i++) {
-      int startPointF = this.numElInRow[i], endPointF = this.numElInRow[i + 1];
-      for (int j = 0; j < sm.numElInRow.length - 1; j++) {
-        int startPointS = sm.numElInRow[j], endPointS = sm.numElInRow[j + 1];
-        int point1 = startPointF, point2 = startPointS;
+    class SSMulThreaded implements Runnable {
+      final int subHeightF, subHeightS, subWidthF, subWidthS;
 
-        while ((point1 < endPointF) && (point2 < endPointS)) {
-          if (this.columnIndex[point1] == sm.columnIndex[point2]) {
-            newMatrix[i][j] += this.elements[point1] * sm.elements[point2];
-            point1++;
-            point2++;
-          } else if (this.columnIndex[point1] < sm.columnIndex[point2]) {
-            point1++;
-          } else {
-            point2++;
+      public SSMulThreaded(int subHeightF, int subHeightS, int subWidthF, int subWidthS) {
+        this.subHeightF = subHeightF;
+        this.subHeightS = subHeightS;
+        this.subWidthF = subWidthF;
+        this.subWidthS = subWidthS;
+      }
+
+      @Override
+      public void run() {
+        for (int i = subHeightF; i < subHeightS; i++) {
+          int startPointF = matrixF.numElInRow[i], endPointF = matrixF.numElInRow[i + 1];
+          for (int j = subWidthF; j < subWidthS; j++) {
+            int startPointS = matrixS.numElInRow[j], endPointS = matrixS.numElInRow[j + 1];
+            int currentPointF = startPointF, currentPointS = startPointS;
+
+            while ((currentPointF < endPointF) && (currentPointS < endPointS)) {
+              if (matrixF.columnIndex[currentPointF] == matrixS.columnIndex[currentPointS]) {
+                newMatrix[i][j] += matrixF.elements[currentPointF] * matrixS.elements[currentPointS];
+                currentPointF++;
+                currentPointS++;
+              } else if (matrixF.columnIndex[currentPointF] < matrixS.columnIndex[currentPointS]) {
+                currentPointF++;
+              } else {
+                currentPointS++;
+              }
+            }
           }
         }
       }
     }
+
+    int subHeight = newHeight / 2, subWidth = newWidth / 2;
+    try {
+      Thread threadFirst = new Thread(new SSMulThreaded(0, subHeight, 0, subWidth));
+      Thread threadSecond = new Thread(new SSMulThreaded(0, subHeight, subWidth, newWidth));
+      Thread threadThird = new Thread(new SSMulThreaded(subHeight, newHeight, 0, subWidth));
+      Thread threadFourth = new Thread(new SSMulThreaded(subHeight, newHeight, subWidth, newWidth));
+
+      threadFirst.start(); threadSecond.start(); threadThird.start(); threadFourth.start();
+      threadFirst.join(); threadSecond.join(); threadThird.join(); threadFourth.join();
+
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+
     return new SparseMatrix(newMatrix);
   }
 
