@@ -21,6 +21,30 @@ public class MatrixTest
   }
 
   @Test
+  public void dmulDS() {
+    Matrix m1 = new DenseMatrix("m1.txt");
+    Matrix m2 = new SparseMatrix("m2.txt");
+    Matrix expected = new SparseMatrix("result.txt");
+    assertEquals(expected, m1.dmul(m2));
+  }
+
+  @Test
+  public void dmulSD() {
+    Matrix m1 = new SparseMatrix("m1.txt");
+    Matrix m2 = new DenseMatrix("m2.txt");
+    Matrix expected = new SparseMatrix("result.txt");
+    assertEquals(expected, m1.dmul(m2));
+  }
+
+  @Test
+  public void dmulSS() {
+    Matrix m1 = new SparseMatrix("m1.txt");
+    Matrix m2 = new SparseMatrix("m2.txt");
+    Matrix expected = new SparseMatrix("result.txt");
+    assertEquals(expected, m1.dmul(m2));
+  }
+
+  @Test
   public void mulDD() {
     Matrix m1 = new DenseMatrix("m1.txt");
     Matrix m2 = new DenseMatrix("m2.txt");
