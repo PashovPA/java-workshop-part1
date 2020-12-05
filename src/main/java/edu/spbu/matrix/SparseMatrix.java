@@ -276,17 +276,19 @@ public class SparseMatrix implements Matrix {
     }
 
     class SDMulThreaded implements Runnable {
-      final int subWidthF, subWidthS;
+      final int subWidthF, subWidthS, subHeightF, subHeightS;
 
-      public SDMulThreaded(int subWidthF, int subWidthS) {
+      public SDMulThreaded(int subWidthF, int subWidthS, int subHeightF, int subHeightS) {
         this.subWidthF = subWidthF;
         this.subWidthS = subWidthS;
+        this.subHeightF = subHeightF;
+        this.subHeightS = subHeightS;
       }
 
       @Override
       public void run(){
         for (int i = subWidthF; i < subWidthS; i++) {
-          for (int j = 0; j < matrixF.numElInRow.length - 1; j++) {
+          for (int j = subHeightF; j < subHeightS; j++) {
             int startPoint = matrixF.numElInRow[j], endPoint = matrixF.numElInRow[j + 1];
             for (int k = startPoint; k < endPoint; k++){
               newMatrix[j][i] += matrixF.elements[k]*matrixS.matrix[matrixF.columnIndex[k]][i];
@@ -295,11 +297,13 @@ public class SparseMatrix implements Matrix {
         }
       }
     }
+
+    int subHeight = newHeight / 2, subWidth = newWidth / 2;
     try {
-      Thread threadFirst = new Thread(new SDMulThreaded(0, newWidth/4));
-      Thread threadSecond = new Thread(new SDMulThreaded(newWidth/4, newWidth/2));
-      Thread threadThird = new Thread(new SDMulThreaded(newWidth/2, newWidth*3/4));
-      Thread threadFourth = new Thread(new SDMulThreaded(newWidth*3/4, newWidth));
+      Thread threadFirst = new Thread(new SDMulThreaded(0, subWidth, 0, subHeight));
+      Thread threadSecond = new Thread(new SDMulThreaded(subWidth, newWidth, 0, subHeight));
+      Thread threadThird = new Thread(new SDMulThreaded(0, subWidth, subHeight, newHeight));
+      Thread threadFourth = new Thread(new SDMulThreaded(subWidth, newWidth, subHeight, newHeight));
 
       threadFirst.start(); threadSecond.start(); threadThird.start(); threadFourth.start();
       threadFirst.join(); threadSecond.join(); threadThird.join(); threadFourth.join();
