@@ -2,10 +2,12 @@ package edu.spbu.net;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
-  private int port;
-  private String host;
+  private final int port;
+  private final String host;
+  private static final String URL = "index.html";
 
   public Client(int port, String host){
     this.port = port;
@@ -14,24 +16,27 @@ public class Client {
 
   void start(){
     try (Socket socket = new Socket(this.host, this.port);
-         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-    )
-    {
+         PrintStream writer = new PrintStream(socket.getOutputStream());
+         Scanner reader = new Scanner(socket.getInputStream());
+    ) {
       System.out.println("Connected to server!");
-      String request = "localhost:8080/index.html";
-      writer.write(request);
-      writer.newLine();
+      String request = "GET /" + URL + " HTTP/1.1";
+      writer.println(request);
       writer.flush();
-      String response = reader.readLine();
+      System.out.println("Request: " + request);
+      String response = reader.nextLine();
       System.out.println("Response: " + response);
-
+      while (reader.hasNextLine()){
+        System.out.println(reader.nextLine());
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
   public static void main(String[] args) {
-    new Client(8080, "127.0.0.1").start();
+    int port = Integer.parseInt(args[0]);
+    String host = args[1];
+    new Client(port, host).start();
   }
 }
