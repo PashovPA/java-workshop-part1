@@ -12,12 +12,12 @@ public class Server {
   private final String directory;
   private static final String NOT_FOUND_MESSAGE = "NOT FOUND";
 
-  public Server(int port, String directory){
+  public Server(int port, String directory) {
     this.port = port;
     this.directory = directory;
   }
 
-  void start(){
+  void start() {
     try (ServerSocket server = new ServerSocket(this.port)) {
       System.out.println("Server started!");
 
@@ -29,37 +29,35 @@ public class Server {
           String url = getRequestUrl(reader);
           Path filePath = Path.of(this.directory, url);
           if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
-            String extension = this.getFileExtension(filePath);
             byte[] fileBytes = Files.readAllBytes(filePath);
-            this.sendResponse(writer, 200, "OK", extension, fileBytes.length);
+            this.sendResponse(writer, 200, "OK", "text/html", fileBytes.length);
             writer.write(fileBytes);
           } else {
-            this.sendResponse(writer, 404, "Not Found","txt", NOT_FOUND_MESSAGE.length());
+            this.sendResponse(writer, 404, "Not Found", "text/plain", NOT_FOUND_MESSAGE.length());
             writer.write(NOT_FOUND_MESSAGE.getBytes());
           }
-        }catch (Exception e){
+        } catch (Exception e) {
           throw new RuntimeException(e);
         }
       }
-    } catch (Exception e){
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   private String getRequestUrl(Scanner reader) {
-    return reader.useDelimiter("\r\n").next().split(" ")[1];
+    String request = reader.nextLine();
+    System.out.println("Request: " + request);
+    return request.split(" ")[1];
   }
 
-  private String getFileExtension(Path filePath) {
-    String fileName = filePath.getFileName().toString();
-    int extensionStart = fileName.lastIndexOf(".");
-    return extensionStart == -1 ? "txt" : fileName.substring(extensionStart + 1);
-  }
-
-  private void sendResponse(PrintStream writer, int statusCode, String statusText, String type, int length) {
+  private void sendResponse(PrintStream writer, int statusCode, String statusText, String type, long length) {
     writer.printf("HTTP/1.1 %s %s%n", statusCode, statusText);
+    System.out.printf("Response: HTTP/1.1 %s %s%n", statusCode, statusText);
     writer.printf("Content-Type: %s%n", type);
+    System.out.printf("          Content-Type: %s%n", type);
     writer.printf("Content-Length: %s%n%n", length);
+    System.out.printf("          Content-Length: %s%n%n", length);
     writer.flush();
   }
 

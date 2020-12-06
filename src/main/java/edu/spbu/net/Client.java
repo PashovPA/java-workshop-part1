@@ -19,7 +19,7 @@ public class Client {
     )
     {
       System.out.println("Connected to server!");
-      String request = "index.html";
+      String request = "localhost:8080/index.html";
       writer.write(request);
       writer.newLine();
       writer.flush();
