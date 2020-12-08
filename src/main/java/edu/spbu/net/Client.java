@@ -20,7 +20,7 @@ public class Client {
          Scanner reader = new Scanner(socket.getInputStream());
     ) {
       System.out.println("Connected to server!");
-      String request = "GET /" + URL + " HTTP/1.1";
+      String request = "GET /" + URL + " HTTP/1.1\r\nHost: " + this.host + "\r\nConnection: close\r\n\r\n\"";
       writer.println(request);
       writer.flush();
       System.out.println("Request: " + request);
