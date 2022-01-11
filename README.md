@@ -1,44 +1,47 @@
-# Практикум на ЭВМ
-Основной целью данного курса является ознакомление студентами с основами профессионального программирования с использованием языка Java.
+# Computer-based workshop
+The main objective of this course is to familiarise students with the basics of professional programming using the Java language.
 
-## Основные темы курса:
-* Основы языка программирования Java
-  * Базовые операции
-  * Работа с массивами 
-  * Работа с коллекциями (java.util), HastMap.
-  * Многопоточное программирование и синхронизация
-  * Сетевое программирование
-* Современные инструменты разработки ПО
-  * IDE IntelliJ, Eclipse
-  * Система контроля версий git, github.
+## Main topics of the course:
+* Fundamentals of Java programming language
+  * Basic operations
+  * Working with arrays 
+  * Working with collections (java.util), HastMap.
+  * Multi-threaded programming and synchronization
+  * Network programming
+* Modern software development tools
+  * IntelliJ IDE, Eclipse
+  * Version control system git, github.
 
-## Практические задания
-Все выполненные задания публикуются на github ссылка на готовые задания отсылается преподавателю
+## Practical assignments
+All completed tasks are published on github; a link to the finished tasks is sent to the teacher.
 
-1. Настройка github
-   1. Создать пользователя на github
-   2. "fork" https://github.com/artem-aliev/java-template/ репозиторий в свое пространство
-   3. Клонировать его на рабочую машиную
-   4. провести изменения кода сделать "commit" и "push"
-   5. Прислать преподавателю ссылку на созданный репозиторий
-2. Настройка IntelliJ/Eclipse
-   1. Экспортировать проект в IDE
-   2. Запустить unit test [IntSortTest.java](https://github.com/artem-aliev/java-template/blob/master/src/test/java/edu/spbu/sort/IntSortTest.java)
-3. Знакомимся с Java. Сортировка
-   1. Заменить в файле [IntSort.java](https://github.com/artem-aliev/java-template/blob/master/src/main/java/edu/spbu/sort/IntSort.java) стандартный вызов на свой собственный алгоритм. 
-       Подходит любой алгоритм с средней вычислительной сложностью n*log(n)
-4. Объектно-ориентированное программирование.
-   1. [Matrix.java](https://github.com/artem-aliev/java-template/blob/master/src/main/java/edu/spbu/matrix/Matrix.java) интерфейс матрицы с одной операцией: умножение
-   2. Задача: создать два класса DenseMatrix и SparseMatrix: плотная и разряженная матрица с соответствующими способами хранения
-   3. Имплементировать метод "mul" умножение таким образом что была возможность умножения разных типов матриц друг на друга
-   4. Написать юнит тесты лоя всех вариантов умножения. Пример: [MatrixTest.java](https://github.com/artem-aliev/java-template/blob/master/src/test/java/edu/spbu/matrix/MatrixTest.java)
-5. Многопоточное программирование
-   1. Добавить в  DenseMatrix и SparseMatrix метод умножающий матрицы в несколько потоков
-   2. Написать тесты, убедиться в росте скорости при увеличении количества потоков
-6. Сетевое программирование
-   1. Написать простой http server способный отдавать html файлы из папки
-   2. Написать простой http клиент способный послать "GET" запрос и распечатать полученный ответ на экране
-   3. Проверить работу client/server между собой
-   4. Проверить что сервер работает со стандартным браузером
-   5. Проверить что клиент получает информацию с любого web сервера в Интернет
+1. Setting up github
+   1. Create a user on github
+   2. "fork" https://github.com/artem-aliev/java-template/ repository to its own space
+   3. Clone it on the production machine
+   4. Make code changes to make "commit" and "push"
+   5. Send the teacher a link to the repository created
+2. Setting up IntelliJ/Eclipse
+   1. export the project into the IDE
+   2. Run unit test [IntSortTest.java](https://github.com/artem-aliev/java-template/blob/master/src/test/java/edu/spbu/sort/IntSortTest.java)
+3. Getting to know Java. Sorting
+   1. Replace in [IntSort.java](https://github.com/artem-aliev/java-template/blob/master/src/main/java/edu/spbu/sort/IntSort.java) file the standard call with your own algorithm. 
+       Any algorithm with average computational complexity n*log(n) is suitable.
+4. object-oriented programming.
+   1. [Matrix.java](https://github.com/artem-aliev/java-template/blob/master/src/main/java/edu/spbu/matrix/Matrix.java) Matrix interface with one operation: multiplication
+   2. Task: create two classes DenseMatrix and SparseMatrix: dense and dilation matrix with corresponding storage methods
+   3. to implement the "mul" method of multiplication in a way that allows multiplying different types of matrices by each other
+   4. Write unit tests loi for all multiplication options. Example: [MatrixTest.java](https://github.com/artem-aliev/java-template/blob/master/src/test/java/edu/spbu/matrix/MatrixTest.java)
+5. Multithreaded programming
+   1. Add a method to DenseMatrix and SparseMatrix that multiplies matrices in multiple threads
+   2. Write tests to see if the speed increases as the number of threads increases
+6. Network programming
+   1. Write a simple http server able to give html files from a folder
+   2. Write a simple http client that can send a "GET" request and print the response on the screen
+   3. Check client/server work with each other
+   4. Check that the server works with a standard browser
+   5. Check that client receives information from any web server on the internet
 
+
+
+Translated with www.DeepL.com/Translator (free version)
